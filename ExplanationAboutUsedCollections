@@ -1,0 +1,6 @@
+  Module	            Collection Used	                           Reason for Choice	                              Alternative & Why Not
+Menu Items	         ArrayList<MenuItem>	            Ordered, iteration fast, dynamic size	       HashMap → unnecessary unless frequent lookup by ID
+Menu Categories   	 HashSet<String>	                Unique categories, fast add & lookup	       ArrayList → duplicates possible
+Customers	         HashMap<Integer, Customer>	        Fast CRUD by ID, key-value mapping	           ArrayList → linear search, slower
+Orders	             HashMap<Integer, Order>	        Fast CRUD by ID	                               ArrayList → linear search
+Order Items	         LinkedList<OrderItem>	            Frequent add/remove of items in orders	       ArrayList → slow remove in middle

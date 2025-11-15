@@ -1,0 +1,66 @@
+Restaurant Management Application - BRD
+
+1. Purpose
+This Business Requirement Document (BRD) defines the requirements for a console-based
+Restaurant Management Application. The objective is to help the developer practice Java
+Collections by using different collection types as in-memory databases. The application will
+support CRUD operations, switch-case based dynamic menus, and exception handling for
+invalid operations.
+
+2. Scope
+The application will allow management of menu items, customers, and orders. All data will
+be stored using appropriate Java Collections (ArrayList, HashMap, HashSet, LinkedList, etc.).
+The application will run through console-based menus and support Create, Read, Update,
+and Delete operations.
+
+3. Functional Requirements
+3.1 Menu Item Management
+- Add a new menu item (ID, name, price, category).
+- View all menu items.
+- Update a menu item.
+- Delete a menu item.
+Collection Suggested: ArrayList or LinkedList.
+
+3.2 Customer Management
+- Add new customer (ID, name, phone number).
+- View all customers.
+- Update customer details.
+- Delete a customer.
+Collection Suggested: HashMap (ID as key).
+
+3.3 Order Management
+- Create new order (order ID, customer ID, list of menu items).
+- View existing orders.
+- Update an order by adding/removing menu items.
+
+- Cancel an order.
+Collections Suggested: HashMap for orders, LinkedList for order items.
+
+4. Dynamic Console Flow
+The application will use nested switch-case structures:
+• Main Menu (Menu Management, Customer Management, Order Management, Exit)
+• Each section will have CRUD options based on switch-case.
+
+5. Exception Handling Requirements
+Exception handling will be required in the following cases:
+• Invalid menu selection → use custom MenuSelectionException.
+• Duplicate ID while adding → use custom DuplicateEntryException.
+• Missing ID while updating/deleting → use custom ResourceNotFoundException.
+• Input mismatch (e.g., price entered as text) → handle InputMismatchException.
+
+6. Non-Functional Requirements
+- Performance: CRUD operations must be fast using correct data structures.
+- Usability: Simple console text-based navigation.
+- Maintainability: Use modular classes (MenuService, CustomerService, OrderService).
+
+7. Collections to Use
+Menu Items → ArrayList
+Customers → HashMap
+Orders → HashMap
+Unique Categories → HashSet
+Order Items → LinkedList
+
+8. Future Enhancements
+- Add file-based storage.
+- Add sorting using Comparator.
+- Add Streams API for filtering items.
