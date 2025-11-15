@@ -64,7 +64,7 @@ public class Application {
             try {
                 System.out.println("\n-- Menu Management --");
                 System.out.println("1. Add Menu Item\n2. View All\n3. Update\n4. Delete\n5. Back");
-                System.out.print("Selects: ");
+                System.out.print("Select your choice on Menu Management: ");
                 int choice = sc.nextInt();
                 sc.nextLine();
                 switch (choice) {
@@ -103,17 +103,26 @@ public class Application {
                                 existing.setName(nname);
                             }
                             System.out.print("New price (0 to keep): ");
-                            double nprice = sc.nextDouble(); sc.nextLine();
-                            if (nprice > 0) existing.setPrice(nprice);
+                            double nprice = sc.nextDouble();
+                            sc.nextLine();
+                            if (nprice > 0) {
+                                existing.setPrice(nprice);
+                            }
                             System.out.print("New category (enter to keep): ");
                             String ncat = sc.nextLine();
-                            if (!ncat.trim().isEmpty()) existing.setCategory(ncat);
+                            if (!ncat.trim().isEmpty()){
+                                existing.setCategory(ncat);
+                            }
                             menuService.update(existing);
                             System.out.println("Updated.");
-                        } catch (ResourceNotFoundException rnfe) { System.out.println(rnfe.getMessage()); }
+                        }
+                        catch (ResourceNotFoundException rnfe) {
+                            System.out.println(rnfe.getMessage());
+                        }
                         break;
                     case 4:
-                        System.out.print("Enter Menu ID to delete: "); int did = sc.nextInt(); sc.nextLine();
+                        System.out.print("Enter Menu ID to delete: ");
+                        int did = sc.nextInt(); sc.nextLine();
                         try {
                             menuService.delete(did);
                             System.out.println("Deleted.");
@@ -148,7 +157,7 @@ public class Application {
             try {
                 System.out.println("\n-- Customer Management --");
                 System.out.println("1. Add Customer\n2. View All\n3. Update\n4. Delete\n5. Back");
-                System.out.print("Select: ");
+                System.out.print("Select your choice on Customer Management: ");
                 int choice = sc.nextInt();
                 sc.nextLine();
                 switch (choice) {
@@ -219,84 +228,149 @@ public class Application {
         }
     }
 
+
     private static void orderManagement(Scanner sc) {
         boolean back = false;
         while (!back) {
             try {
                 System.out.println("\n-- Order Management --");
                 System.out.println("1. Create Order\n2. View All Orders\n3. Update Order (add/remove items)\n4. Cancel Order\n5. Delete Order\n6. Back");
-                System.out.print("Select: ");
-                int choice = sc.nextInt(); sc.nextLine();
+                System.out.print("Select your choice on Order Management: ");
+                int choice = sc.nextInt();
+                sc.nextLine();
+
                 switch (choice) {
+                    // ---------------- Create Order ----------------
                     case 1:
                         int oid = IdGenerator.nextOrderId();
+
+                        // ---------------- DISPLAY MENU BEFORE ASKING CUSTOMER ----------------
+                        System.out.println("\nAvailable Menu Items:");
+                        for (MenuItem mi : menuService.getAll()) {
+                            System.out.println(mi);
+                        }
+
                         System.out.print("Customer ID: ");
-                        int cid = sc.nextInt(); sc.nextLine();
+                        int cid = sc.nextInt();
+                        sc.nextLine();
                         Order o = new Order(oid, cid);
+
+                        // ---------------- ADD MENU ITEMS ----------------
+                        boolean addingItems = true;
+                        while (addingItems) {
+                            System.out.print("Enter Menu Item ID to add (0 to finish): ");
+                            int menuId = sc.nextInt();
+                            sc.nextLine();
+                            if (menuId == 0) break;
+
+                            System.out.print("Quantity: ");
+                            int qty = sc.nextInt();
+                            sc.nextLine();
+
+                            try {
+                                MenuItem mi = menuService.getById(menuId);
+                                o.getItems().add(new OrderItem(mi.getId(), mi.getName(), mi.getPrice(), qty));
+                            }
+                            catch (ResourceNotFoundException rnfe) {
+                                System.out.println(rnfe.getMessage());
+                            }
+                        }
+
                         try {
                             orderService.create(o);
                             System.out.println("Order created with ID: " + oid);
                         }
-                        catch (DuplicateEntryException de) {
-                            System.out.println(de.getMessage());
-                        }
-                        catch (ResourceNotFoundException rnfe) {
-                            System.out.println(rnfe.getMessage());
+                        catch (DuplicateEntryException | ResourceNotFoundException e) {
+                            System.out.println(e.getMessage());
                         }
                         break;
+
+                    // ---------------- View Orders ----------------
                     case 2:
                         System.out.println("All Orders:");
                         for (Order ord : orderService.getAll().values())
                             System.out.println(ord + "\n");
                         break;
+
+                    // ---------------- Update Order ----------------
                     case 3:
                         System.out.print("Order ID: ");
-                        int upId = sc.nextInt(); sc.nextLine();
+                        int upId = sc.nextInt();
+                        sc.nextLine();
                         System.out.println("1. Add Item\n2. Remove Item");
-                        int sub = sc.nextInt(); sc.nextLine();
+                        int sub = sc.nextInt();
+                        sc.nextLine();
+
                         if (sub == 1) {
-                            System.out.print("Menu Item ID: ");
-                            int mid = sc.nextInt(); sc.nextLine();
-                            System.out.print("Quantity: ");
-                            int q = sc.nextInt(); sc.nextLine();
-                            try {
-                                orderService.addMenuItemToOrder(upId, mid, q);
-                                System.out.println("Item added.");
+                            // ---------------- DISPLAY MENU FOR ADDING ITEMS ----------------
+                            System.out.println("\nAvailable Menu Items:");
+                            for (MenuItem mi : menuService.getAll()) {
+                                System.out.println(mi);
                             }
-                            catch (ResourceNotFoundException rnfe) {
-                                System.out.println(rnfe.getMessage());
+
+                            boolean adding = true;
+                            while (adding) {
+                                System.out.print("Menu Item ID to add (0 to finish): ");
+                                int mid = sc.nextInt();
+                                sc.nextLine();
+                                if (mid == 0) break;
+
+                                System.out.print("Quantity: ");
+                                int q = sc.nextInt();
+                                sc.nextLine();
+
+                                try {
+                                    orderService.addMenuItemToOrder(upId, mid, q);
+                                    System.out.println("Item added.");
+                                } catch (ResourceNotFoundException rnfe) {
+                                    System.out.println(rnfe.getMessage());
+                                }
                             }
                         }
                         else if (sub == 2) {
-                            System.out.print("Menu Item ID: ");
-                            int mid = sc.nextInt(); sc.nextLine();
-                            System.out.print("Quantity to remove: ");
-                            int q = sc.nextInt(); sc.nextLine();
-                            try {
-                                orderService.removeMenuItemFromOrder(upId, mid, q);
-                                System.out.println("Item removed/updated.");
-                            }
-                            catch (ResourceNotFoundException rnfe) {
-                                System.out.println(rnfe.getMessage());
+                            boolean removing = true;
+                            while (removing) {
+                                System.out.print("Menu Item ID to remove (0 to finish): ");
+                                int mid = sc.nextInt();
+                                sc.nextLine();
+                                if (mid == 0) break;
+
+                                System.out.print("Quantity to remove: ");
+                                int q = sc.nextInt(); sc.nextLine();
+
+                                try {
+                                    orderService.removeMenuItemFromOrder(upId, mid, q);
+                                    System.out.println("Item removed/updated.");
+                                }
+                                catch (ResourceNotFoundException rnfe) {
+                                    System.out.println(rnfe.getMessage());
+                                }
                             }
                         }
                         else {
                             System.out.println("Invalid sub-choice.");
                         }
                         break;
+
+                    // ---------------- Cancel Order ----------------
                     case 4:
                         System.out.print("Enter Order ID to cancel: ");
-                        int cidc = sc.nextInt(); sc.nextLine();
+                        int cidc = sc.nextInt();
+                        sc.nextLine();
                         try {
                             orderService.cancelOrder(cidc);
-                            System.out.println("Canceled."); }
+                            System.out.println("Canceled.");
+                        }
                         catch (ResourceNotFoundException rnfe) {
                             System.out.println(rnfe.getMessage());
                         }
                         break;
+
+                    // ---------------- Delete Order ----------------
                     case 5:
                         System.out.print("Enter Order ID to delete: ");
-                        int did = sc.nextInt(); sc.nextLine();
+                        int did = sc.nextInt();
+                        sc.nextLine();
                         try {
                             orderService.deleteOrder(did);
                             System.out.println("Deleted.");
@@ -305,13 +379,17 @@ public class Application {
                             System.out.println(rnfe.getMessage());
                         }
                         break;
+
+                    // ---------------- Back ----------------
                     case 6:
                         back = true;
                         break;
+
                     default:
                         throw new MenuSelectionException("Invalid order management choice");
                 }
-            } catch (MenuSelectionException mse) {
+            }
+            catch (MenuSelectionException mse) {
                 System.out.println(mse.getMessage());
             }
             catch (InputMismatchException ime) {
